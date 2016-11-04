@@ -22,19 +22,13 @@ public class MainActivity extends AppCompatActivity {
         }else{
             Log.e("dir","direxist...");
         }
-
-
+        
         new DownloadFileFromURL().execute("https://raw.githubusercontent.com/B0yma/photoframe/master/version.txt");
-
-
     }
 
 
 
     class DownloadFileFromURL extends AsyncTask<String, String, String> {
-
-
-
         /**
          * Before starting background thread Show Progress Bar Dialog
          * */
@@ -118,6 +112,5 @@ public class MainActivity extends AppCompatActivity {
             progressDoalog.dismiss();
 
         }
-
     }
 }

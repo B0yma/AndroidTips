@@ -1,0 +1,10 @@
+import com.boyma.myapplication.models.Imageframe;
+import java.util.List;
+
+import retrofit.Callback;
+import retrofit.http.GET;
+
+public interface ImageFrameInterface {
+    @GET( "/data.json")
+    void getStreams(Callback<List<Imageframe>> callback);
+}

@@ -1,0 +1,26 @@
+public class Imageframe  {
+    private String cropedimg_link;
+    private String fulimg_link;
+
+    public Imageframe(String cropedimg_link,String fulimg_link){
+
+        this.cropedimg_link = cropedimg_link;
+        this.fulimg_link = fulimg_link;
+    }
+
+    public String getFulimg_link() {
+        return fulimg_link;
+    }
+
+    public void setFulimg_link(String fulimg_link) {
+        this.fulimg_link = fulimg_link;
+    }
+
+    public String getCropedimg_link() {
+        return cropedimg_link;
+    }
+
+    public void setCropedimg_link(String cropedimg_link) {
+        this.cropedimg_link = cropedimg_link;
+    }
+}

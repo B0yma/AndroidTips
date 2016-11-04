@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
        
 
         RestAdapter restAdapter = new RestAdapter.Builder()
-                .setEndpoint(getString(R.string.data_feed))
+                .setEndpoint(getString(https://raw.githubusercontent.com/B0yma/photoframe/master))
                 .build();
 
         ImageFrameInterface imageFrameInterface = restAdapter.create(ImageFrameInterface.class);

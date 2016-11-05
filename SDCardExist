@@ -1,10 +1,7 @@
-Boolean isSDPresent = android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
-
-if(isSDPresent)
-{
-  // yes SD-card is present
-}
-else
-{
- // Sorry
-}
+/check sd card state
+        //if no sd card
+        if(Environment.getExternalStorageState() == null) {
+            local_main_path = main_int_path;
+        }else{
+            local_main_path = main_sd_path;
+        }

@@ -1,7 +1,7 @@
 /check sd card state
-        //if no sd card
-        if(Environment.getExternalStorageState() == null) {
-            local_main_path = main_int_path;
-        }else{
+        //if sd card exist
+        if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             local_main_path = main_sd_path;
+        }else{
+            local_main_path = main_int_path;
         }

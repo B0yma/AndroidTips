@@ -1,0 +1,5 @@
+DisplayMetrics dm = getResources().getDisplayMetrics();
+        int screen_width = dm.widthPixels;
+        System.out.println("screen_width:"+screen_width);
+        int screen_height = dm.heightPixels;
+        System.out.println("screen_height:"+screen_height);

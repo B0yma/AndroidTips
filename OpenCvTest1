@@ -1,0 +1,59 @@
+
+                        // downsample and use it for processing size/2
+
+                        Mat rgb = tmp.clone();
+                        Imgproc.cvtColor(tmp, tmp, Imgproc.COLOR_RGB2GRAY);
+                        // morphological gradient
+                        Mat morphKernel = Imgproc.getStructuringElement(MORPH_ELLIPSE, new Size(3, 3));
+                        morphologyEx(tmp, tmp, MORPH_GRADIENT, morphKernel);
+                        // binarize
+                        Imgproc.GaussianBlur(tmp,tmp,new Size(21,3),0);
+                        Imgproc.threshold(tmp,tmp,150,255,Imgproc.THRESH_TRUNC);
+                        Imgproc.adaptiveThreshold(tmp,tmp,255,Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C,Imgproc.THRESH_BINARY,41,4);
+                        // connect horizontally oriented regions
+                        Mat connected = tmp.clone();
+                        morphKernel = Imgproc.getStructuringElement(MORPH_RECT, new Size(9, 1));
+                        morphologyEx(connected, tmp, MORPH_CLOSE, morphKernel);
+
+                        // find contours
+                        Mat mask = Mat.zeros(tmp.size(), CvType.CV_8UC1);
+                        List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+                        Imgproc.findContours(connected, contours, new Mat(), Imgproc.RETR_LIST,Imgproc.CHAIN_APPROX_SIMPLE);
+                        // filter contours
+                        for(int i = 0 ; i<contours.size(); i++){
+                            Rect rect = Imgproc.boundingRect(contours.get(i));
+                            Mat maskROI = new Mat(mask, rect);
+                            //maskROI = new Scalar(0, 0, 0);
+                            // fill the contour
+                            Imgproc.drawContours(mask, contours, i, new Scalar(255, 255, 255),-1);
+                            MatOfPoint2f contour2f = new MatOfPoint2f( contours.get(i).toArray() );
+                            RotatedRect rrect = Imgproc.minAreaRect(contour2f);
+                            double r = (double)countNonZero(maskROI) / (rrect.size.width * rrect.size.height);
+
+                            Scalar color;
+                            int thickness = 1;
+                            // assume at least 25% of the area is filled if it contains text
+                            if (r > 0.25 &&
+                                    (rrect.size.height > 8 && rrect.size.width > 8) // constraints on region size
+                                // these two conditions alone are not very robust. better to use something
+                                //like the number of significant peaks in a horizontal projection as a third condition
+                                    ){
+                                thickness = 2;
+                                color = new Scalar(0, 255, 0);
+                            }
+                            else
+                            {
+                                thickness = 1;
+                                color = new Scalar(0, 0, 255);
+                            }
+
+                            Point[] pts = new Point[4];
+                            rrect.points(pts);
+                            for (int j = 0; j < 4; j++)
+                            {
+                                Imgproc.line(rgb, new Point((int)pts[j].x, (int)pts[j].y), new Point((int)pts[(j+1)%4].x, (int)pts[(j+1)%4].y), color, thickness);
+                            }
+                        }
+
+
+                        org.opencv.android.Utils.matToBitmap(tmp, transformed);

@@ -1,59 +1,63 @@
+try {
+                        System.out.println("haloooo");
+                        //transformed = ((ScanActivity) getActivity()).getBWBitmap(original);
+                        transformed = original;
+                        Mat tmp = new Mat(transformed.getWidth(), transformed.getHeight(), CvType.CV_8UC2);
+                        org.opencv.android.Utils.bitmapToMat(transformed, tmp);
 
-                        // downsample and use it for processing size/2
+                        Mat Main = tmp.clone();
+                        Mat rgb = new Mat();
 
-                        Mat rgb = tmp.clone();
-                        Imgproc.cvtColor(tmp, tmp, Imgproc.COLOR_RGB2GRAY);
-                        // morphological gradient
-                        Mat morphKernel = Imgproc.getStructuringElement(MORPH_ELLIPSE, new Size(3, 3));
-                        morphologyEx(tmp, tmp, MORPH_GRADIENT, morphKernel);
-                        // binarize
-                        Imgproc.GaussianBlur(tmp,tmp,new Size(21,3),0);
-                        Imgproc.threshold(tmp,tmp,150,255,Imgproc.THRESH_TRUNC);
-                        Imgproc.adaptiveThreshold(tmp,tmp,255,Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C,Imgproc.THRESH_BINARY,41,4);
-                        // connect horizontally oriented regions
-                        Mat connected = tmp.clone();
-                        morphKernel = Imgproc.getStructuringElement(MORPH_RECT, new Size(9, 1));
-                        morphologyEx(connected, tmp, MORPH_CLOSE, morphKernel);
+                        Imgproc.pyrDown(Main, rgb);
 
-                        // find contours
-                        Mat mask = Mat.zeros(tmp.size(), CvType.CV_8UC1);
+                        Mat small = new Mat();
+
+                        Imgproc.cvtColor(rgb, small, Imgproc.COLOR_RGB2GRAY);
+
+                        Mat grad = new Mat();
+
+                        Mat morphKernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(3,3));
+
+                        Imgproc.morphologyEx(small, grad, Imgproc.MORPH_GRADIENT , morphKernel);
+
+                        Mat bw = new Mat();
+
+                        Imgproc.threshold(grad, bw, 0.0, 255.0, Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
+
+                        Mat connected = new Mat();
+
+                        morphKernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(9,1));
+
+                        Imgproc.morphologyEx(bw, connected, Imgproc.MORPH_CLOSE  , morphKernel);
+
+
+                        Mat mask = Mat.zeros(bw.size(), CvType.CV_8UC1);
+
                         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-                        Imgproc.findContours(connected, contours, new Mat(), Imgproc.RETR_LIST,Imgproc.CHAIN_APPROX_SIMPLE);
-                        // filter contours
-                        for(int i = 0 ; i<contours.size(); i++){
-                            Rect rect = Imgproc.boundingRect(contours.get(i));
+
+                        Mat hierarchy = new Mat();
+
+                        Imgproc.findContours(connected, contours, hierarchy, Imgproc.RETR_CCOMP, Imgproc.CHAIN_APPROX_SIMPLE, new Point(0, 0));
+
+                        for(int idx = 0; idx < contours.size(); idx++) {
+                            Rect rect = Imgproc.boundingRect(contours.get(idx));
+
                             Mat maskROI = new Mat(mask, rect);
-                            //maskROI = new Scalar(0, 0, 0);
-                            // fill the contour
-                            Imgproc.drawContours(mask, contours, i, new Scalar(255, 255, 255),-1);
-                            MatOfPoint2f contour2f = new MatOfPoint2f( contours.get(i).toArray() );
-                            RotatedRect rrect = Imgproc.minAreaRect(contour2f);
-                            double r = (double)countNonZero(maskROI) / (rrect.size.width * rrect.size.height);
+                            maskROI.setTo(new Scalar(0, 0, 0));
+                            Imgproc.drawContours(mask, contours, idx, new Scalar(255, 255, 255), Core.FILLED);
 
-                            Scalar color;
-                            int thickness = 1;
-                            // assume at least 25% of the area is filled if it contains text
-                            if (r > 0.25 &&
-                                    (rrect.size.height > 8 && rrect.size.width > 8) // constraints on region size
-                                // these two conditions alone are not very robust. better to use something
-                                //like the number of significant peaks in a horizontal projection as a third condition
-                                    ){
-                                thickness = 2;
-                                color = new Scalar(0, 255, 0);
-                            }
-                            else
-                            {
-                                thickness = 1;
-                                color = new Scalar(0, 0, 255);
+                            double r = (double)Core.countNonZero(maskROI)/(rect.width*rect.height);
+
+                            if (r > .45 && (rect.height > 8 && rect.width > 8)) {
+                                Imgproc.rectangle(rgb, rect.br() , new Point( rect.br().x-rect.width ,rect.br().y-rect.height),  new Scalar(0, 255, 0));
                             }
 
-                            Point[] pts = new Point[4];
-                            rrect.points(pts);
-                            for (int j = 0; j < 4; j++)
-                            {
-                                Imgproc.line(rgb, new Point((int)pts[j].x, (int)pts[j].y), new Point((int)pts[(j+1)%4].x, (int)pts[(j+1)%4].y), color, thickness);
-                            }
                         }
 
 
-                        org.opencv.android.Utils.matToBitmap(tmp, transformed);
+                        Bitmap new_image = Bitmap.createBitmap(rgb.width(), rgb.height(), Bitmap.Config.ARGB_8888);
+                        //Mat tmp2 = new Mat(new_image.getWidth(), new_image.getHeight(), CvType.CV_8UC2);
+                        //org.opencv.android.Utils.bitmapToMat(transformed, tmp);
+                        org.opencv.android.Utils.matToBitmap(rgb, new_image);
+                        transformed = new_image;
+                        System.out.println(rgb.height()+";"+rgb.width());

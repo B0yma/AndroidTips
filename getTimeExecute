@@ -1,0 +1,5 @@
+long startTime = System.currentTimeMillis();
+                        dosmth();
+                        long finishTime = System.currentTimeMillis();
+                        final String thattook = "That took: "+String.valueOf(finishTime-startTime)+ " ms";
+                        System.out.println(thattook);

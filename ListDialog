@@ -1,0 +1,22 @@
+//onclick
+showChFromDialog();
+//------------------------
+private void showChFromDialog() {
+        final CharSequence[] items = {"Фото с Камеры", "Фото с Галереи"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(Main2Activity.this);
+        builder.setTitle("Выберите действие");
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+                //Toast.makeText(Main2Activity.this,String.valueOf(item),Toast.LENGTH_LONG).show();
+                if (item == 0) {
+                    // getCapturesProfilePicFromCamera();
+                } else if (item == 1) {
+                    // getProfilePicFromGallery();
+                }
+            }
+        });
+        AlertDialog dialog = builder.create();
+        // display dialog
+        dialog.show();
+    }

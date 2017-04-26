@@ -1,0 +1,7 @@
+new CountDownTimer(150, 1000) {
+                    public void onFinish() {
+                        //dosmth
+                    }
+                    public void onTick(long millisUntilFinished) {
+                    }
+                }.start();

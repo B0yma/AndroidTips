@@ -1,0 +1,52 @@
+--Activity
+//onClick
+Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+        photoPickerIntent.setType("image/*");
+        startActivityForResult(photoPickerIntent, CAMERA_REQUEST);
+        
+        
+@Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
+        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
+        photoUri = imageReturnedIntent.getData();
+        switch(requestCode) {
+            case CAMERA_REQUEST:
+                if(resultCode == RESULT_OK){
+                    copyFile(photoUri,getContentResolver());
+                }
+                break;
+        }
+    }
+    
+    
+--Pre
+private String copyFile(Uri photoUri, ContentResolver contentResolver) {
+        File dst = new File(App.getInstance().getAppDir(),String.valueOf(System.currentTimeMillis()));
+
+        try {
+            copy(photoUri,dst,contentResolver);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(dst.getPath());
+        return dst.getPath();
+    }
+    
+    private void copy(Uri src, File dst, ContentResolver contentResolver) throws IOException {
+        InputStream in = contentResolver.openInputStream(src);
+        try {
+            OutputStream out = new FileOutputStream(dst);
+            try {
+                // Transfer bytes from in to out
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+            } finally {
+                out.close();
+            }
+        } finally {
+            in.close();
+        }
+     }
